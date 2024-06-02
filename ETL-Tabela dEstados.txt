@@ -1,0 +1,8 @@
+let
+    Fonte = conteudo_pasta,
+    #"Filtra arquivo e registros" = Table.SelectRows(Fonte, each ([Name] = "dEstados.xlsx")),
+    #"Exporta conteudo" = Table.AddColumn(#"Filtra arquivo e registros", "Tables", each Excel.Workbook([Content], true)),
+    #"Tables Expandido" = Table.ExpandTableColumn(#"Exporta conteudo", "Tables", {"Name", "Data", "Item", "Kind", "Hidden"}, {"Name.1", "Data", "Item", "Kind", "Hidden"}),
+    Data = #"Tables Expandido"{0}[Data]
+in
+    Data

@@ -1,0 +1,17 @@
+let
+   AnoInicial = 2022,
+    //Conta a quantidade de dias entre as duas datas
+    QtdeDias = Duration.Days(_DataFinal-_DataInicio)+1,
+    //Cria lista de datas
+    Datalist = List.Dates(_DataInicio, QtdeDias,#duration(1,0,0,0)),
+    //Converter para Tabela
+    ConvertTabela = Table.FromList(Datalist, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+    //Altera Tipo
+    AlteraTipo = Table.TransformColumnTypes(ConvertTabela,{{"Column1", type date}}),
+    //Renomeia Coluna
+    RenomeiaColuna = Table.RenameColumns(AlteraTipo,{"Column1", "Data"}),
+    #"Cria coluna: ano" = Table.AddColumn(RenomeiaColuna, "Ano", each Date.Year([Data]),Int64.Type),
+    #"Cria coluna: mes" = Table.AddColumn(#"Cria coluna: ano", "Mes", each Date.Month([Data]),Int64.Type),
+    #"Cria coluna: dia" = Table.AddColumn(#"Cria coluna: mes", "Dia", each Date.Day([Data]), Int64.Type)
+in
+    #"Cria coluna: dia"

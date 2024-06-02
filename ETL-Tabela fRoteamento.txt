@@ -1,0 +1,34 @@
+let
+    Fonte = Table.Combine({tRoteamento_2024, tRoteamento_2023, tRoteamento_2022}),
+    #"Colunas Removidas" = Table.RemoveColumns(Fonte,{"ordem", "fluxo_id", "cliente_id", "chave_interacao"}),
+    #"Colunas Reordenadas" = Table.ReorderColumns(#"Colunas Removidas",{"data", "intervalo", "locatario", "tipo_midia", "tipo_interacao", "inicio", "interacao_id", "origem", "destino", "conexao_id", "guid", "carimbo_inicio", "carimbo_termino", "no_origem", "tipo_origem", "no_destino", "tipo_destino", "resultado_tecnico", "duracao"}),
+    #"Cria coluna: datakey" = Table.DuplicateColumn(#"Colunas Reordenadas", "inicio", "DataKey"),
+    #"Filtra periodo incremental" = Table.SelectRows(#"Cria coluna: datakey", each [DataKey] >= RangeStart and [DataKey] <= RangeEnd),
+    #"Colunas Renomeadas" = Table.RenameColumns(#"Filtra periodo incremental",{{"intervalo", "intervalo_"}})
+in
+    #"Colunas Renomeadas"
+	
+	
+let
+    Fonte = conteudo_pasta,
+    #"Filtra arquivo e registros" = Table.SelectRows(Fonte, each Text.Contains([Folder Path], "central") 
+and Text.Contains([Folder Path], "roteamento")
+and Text.Contains([Name], ".xlsx")),
+    #"Exporta conteudo" = Table.AddColumn(#"Filtra arquivo e registros", "Tables", each Excel.Workbook([Content], true)),
+    #"Tables Expandido" = Table.ExpandTableColumn(#"Exporta conteudo", "Tables", {"Data", "Name"}, {"Tables.Data", "Tables.Name"}),
+    #"Conteudo importado" = Table.ExpandTableColumn(#"Tables Expandido", "Tables.Data", {"Locatário", "Hora de Início", "ID da Interação", "De", "Para", "ID da Conexão", "GUID", "Carimbo de Hora de Início", "Carimbo de Hora de Término", "Ordem", "ID do segmento/fluxo", "ID do Cliente", "Tipo de Mídia", "Chave de Interação", "Tipo de Interação", "Nome de Origem", "Tipo de Origem", "Nome do Destino", "Tipo de Destino", "Função do Recurso no Resultado Técnico", "Motivo da Função no Resultado Técnico", "Motivo do Resultado Técnico", "Resultado Técnico", "Ativo", "Duração"}, {"Locatário", "Hora de Início", "ID da Interação", "De", "Para", "ID da Conexão", "GUID", "Carimbo de Hora de Início", "Carimbo de Hora de Término", "Ordem", "ID do segmento/fluxo", "ID do Cliente", "Tipo de Mídia", "Chave de Interação", "Tipo de Interação", "Nome de Origem", "Tipo de Origem", "Nome do Destino", "Tipo de Destino", "Função do Recurso no Resultado Técnico", "Motivo da Função no Resultado Técnico", "Motivo do Resultado Técnico", "Resultado Técnico", "Ativo", "Duração"}),
+    #"Colunas Renomeadas" = Table.RenameColumns(#"Conteudo importado",{{"Locatário", "locatario"}, {"Hora de Início", "inicio"}, {"ID da Interação", "interacao_id"}, {"De", "origem"}, {"Para", "destino"}, {"ID da Conexão", "conexao_id"}, {"GUID", "guid"}, {"Carimbo de Hora de Início", "carimbo_inicio"}, {"Carimbo de Hora de Término", "carimbo_termino"}, {"Ordem", "ordem"}, {"ID do segmento/fluxo", "fluxo_id"}, {"ID do Cliente", "cliente_id"}, {"Tipo de Mídia", "tipo_midia"}, {"Chave de Interação", "chave_interacao"}, {"Tipo de Interação", "tipo_interacao"}, {"Nome de Origem", "no_origem"}, {"Nome do Destino", "no_destino"}, {"Tipo de Destino", "tipo_destino"}, {"Tipo de Origem", "tipo_origem"}, {"Resultado Técnico", "resultado_tecnico"}, {"Duração", "duracao"}}),
+    #"Outras Colunas Removidas" = Table.SelectColumns(#"Colunas Renomeadas",{"locatario", "inicio", "interacao_id", "origem", "destino", "conexao_id", "guid", "carimbo_inicio", "carimbo_termino", "ordem", "fluxo_id", "cliente_id", "tipo_midia", "chave_interacao", "tipo_interacao", "no_origem", "tipo_origem", "no_destino", "tipo_destino", "resultado_tecnico", "duracao"}),
+    #"Preenchido Abaixo" = Table.FillDown(#"Outras Colunas Removidas",{"locatario", "inicio", "interacao_id", "origem", "destino", "conexao_id", "guid", "carimbo_inicio"}),
+    #"Coluna Duplicada" = Table.DuplicateColumn(#"Preenchido Abaixo", "inicio", "tmp"),
+    #"Tipo Alterado" = Table.TransformColumnTypes(#"Coluna Duplicada",{{"locatario", type text}, {"inicio", type datetime}, {"interacao_id", type text}, {"origem", type text}, {"destino", type text}, {"conexao_id", type text}, {"guid", type text}, {"carimbo_inicio", type datetime}, {"carimbo_termino", type datetime}, {"ordem", type text}, {"fluxo_id", type text}, {"cliente_id", type text}, {"tipo_midia", type text}, {"chave_interacao", type text}, {"tipo_interacao", type text}, {"no_origem", type text}, {"tipo_origem", type text}, {"no_destino", type text}, {"tipo_destino", type text}, {"resultado_tecnico", type text}, {"duracao", Int64.Type}, {"tmp", type text}}),
+    #"Cria colunas: data_hora" = Table.SplitColumn(#"Tipo Alterado", "tmp", Splitter.SplitTextByDelimiter(" ", QuoteStyle.Csv), {"data", "hora"}),
+    #"Dividir Coluna por Delimitador" = Table.SplitColumn(#"Cria colunas: data_hora", "hora", Splitter.SplitTextByDelimiter(":", QuoteStyle.Csv), {"hh", "mm"}),
+    #"Cria coluna: mm" = Table.DuplicateColumn(#"Dividir Coluna por Delimitador", "mm", "tmp"),
+    #"Tipo Alterado1" = Table.TransformColumnTypes(#"Cria coluna: mm",{{"tmp", Int64.Type}}),
+    #"Cria coluna: range" = Table.AddColumn(#"Tipo Alterado1", "range", each if [tmp] <= 30 then "00-30" else "30-59"),
+    #"Cria coluna: intervalo" = Table.AddColumn(#"Cria coluna: range", "intervalo", each [hh] & ":" & [range]),
+    #"Colunas Removidas" = Table.RemoveColumns(#"Cria coluna: intervalo",{"hh", "mm", "tmp", "range"}),
+    #"Corrige tipos" = Table.TransformColumnTypes(#"Colunas Removidas",{{"data", type date}, {"intervalo", type text}})
+in
+    #"Corrige tipos"

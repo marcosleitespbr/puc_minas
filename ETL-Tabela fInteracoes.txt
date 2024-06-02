@@ -1,0 +1,41 @@
+fInteracoes = SUMMARIZE(fRoteamento, fRoteamento[guid])
+
+Campos calculados:
+max = 
+    VAR guid = fInteracoes[guid]
+    VAR r = IFERROR(LOOKUPVALUE(fRoteamento[max], fRoteamento[guid], guid), BLANK())
+
+RETURN
+    IF(ISBLANK(r), BLANK(), r)
+	
+max_queue = 
+    VAR guid = fInteracoes[guid]
+    VAR r = CALCULATE(MAX(fRoteamento[rnk]), ALL(fRoteamento), fRoteamento[guid] = guid, fRoteamento[tipo_destino] = "Queue")
+
+RETURN
+    r
+	
+max_agent = 
+    VAR guid = fInteracoes[guid]
+    VAR r = CALCULATE(MAX(fRoteamento[rnk]), ALL(fRoteamento), fRoteamento[guid] = guid, fRoteamento[tipo_destino] = "Agent")
+
+RETURN
+    r
+	
+nome_fila = 
+    VAR guid = fInteracoes[guid]
+    VAR queue = fInteracoes[max_queue]
+    VAR r = IFERROR(LOOKUPVALUE(fRoteamento[no_destino], fRoteamento[guid], guid, fRoteamento[rnk], queue), BLANK())
+
+RETURN
+    IF(ISBLANK(r), BLANK(), r)
+	
+	
+	
+agente_id = 
+    VAR guid = fInteracoes[guid]
+    VAR agent = fInteracoes[max_agent]
+    VAR r = IFERROR(LOOKUPVALUE(fRoteamento[no_destino], fRoteamento[guid], guid, fRoteamento[rnk], agent), BLANK())
+
+RETURN
+    IF(ISBLANK(r), BLANK(), r)

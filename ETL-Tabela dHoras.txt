@@ -1,0 +1,37 @@
+dHoras = EVALUATEANDLOG(
+    {
+        (0, "00-06h Madrugada"),
+        (1, "00-06h Madrugada"),
+        (2, "00-06h Madrugada"),
+        (3, "00-06h Madrugada"),
+        (4, "00-06h Madrugada"),
+        (5, "00-06h Madrugada"),
+        (6, "06-12h Manhã"),
+        (7, "06-12h Manhã"),
+        (8, "06-12h Manhã"),
+        (9, "06-12h Manhã"),
+        (10, "06-12h Manhã"),
+        (11, "06-12h Manhã"),
+        (12, "12-18h Tarde"),
+        (13, "12-18h Tarde"),
+        (14, "12-18h Tarde"),
+        (15, "12-18h Tarde"),
+        (16, "12-18h Tarde"),
+        (17, "12-18h Tarde"),
+        (18, "18-24h Noite"),
+        (19, "18-24h Noite"),
+        (20, "18-24h Noite"),
+        (21, "18-24h Noite"),
+        (22, "18-24h Noite"),
+        (23, "18-24h Noite")
+    }
+)
+
+
+Campo calculado 
+alias = 
+    VAR hh = "" & dHoras[hora]
+    VAR r = IF(LEN(hh) = 1, "0" & hh, hh)
+
+RETURN
+    r

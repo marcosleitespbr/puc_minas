@@ -1,0 +1,17 @@
+dNotas NPS = EVALUATEANDLOG(
+    {
+        ("-1", "Não respondente", "-1", "Não respondente"),
+        ("0", "Nota  0", " 0", "Detrator"),
+        ("1", "Nota  1", " 1", "Detrator"),
+        ("2", "Nota  2", " 2", "Detrator"),
+        ("3", "Nota  3", " 3", "Detrator"),
+        ("4", "Nota  4", " 4", "Detrator"),
+        ("5", "Nota  5", " 5", "Detrator"),
+        ("6", "Nota  6", " 6", "Detrator"),
+        ("7", "Nota  7", " 7", "Neutro"),
+        ("8", "Nota  8", " 8", "Neutro"),
+        ("9", "Nota  9", " 9", "Promotor"),
+        ("10", "Nota 10", "10", "Promotor"),
+        ("", "NONE", BLANK(), "NONE")
+    }
+)

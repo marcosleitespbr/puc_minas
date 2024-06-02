@@ -1,0 +1,1 @@
+dNotas CES = SUMMARIZE('dNotas NPS', 'dNotas NPS'[id], 'dNotas NPS'[Descricao], 'dNotas NPS'[alias], 'dNotas NPS'[Tipo respondente])

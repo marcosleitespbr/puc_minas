@@ -1,0 +1,1 @@
+dServicos = SUMMARIZE(dFilas, dFilas[nome_servico])

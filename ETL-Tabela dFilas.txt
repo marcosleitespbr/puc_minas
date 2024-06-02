@@ -1,0 +1,10 @@
+let
+    Fonte = conteudo_pasta,
+    #"Filtra arquivo e registros" = Table.SelectRows(Fonte, each ([Name] = "dFilas.csv")),
+    #"Acessa conteudo do arquivo" = #"Filtra arquivo e registros"{[Name="dFilas.csv"]}[Content],
+    #"Importa registros" = Csv.Document(#"Acessa conteudo do arquivo",[Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.None]),
+    #"Cabeçalhos Promovidos" = Table.PromoteHeaders(#"Importa registros", [PromoteAllScalars=true]),
+    #"Colunas Renomeadas" = Table.RenameColumns(#"Cabeçalhos Promovidos",{{"tipo_servico", "nome_servico"}, {"nome_intradiario", "nome_intradiario old"}}),
+    #"Outras Colunas Removidas" = Table.SelectColumns(#"Colunas Renomeadas",{"nome_fila", "nome_servico", "nome_segmento"})
+in
+    #"Outras Colunas Removidas"

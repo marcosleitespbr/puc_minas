@@ -1,0 +1,1 @@
+dAgentes = FILTER(SUMMARIZE(fInteracoes, fInteracoes[agente_id]), fInteracoes[agente_id] <> "")

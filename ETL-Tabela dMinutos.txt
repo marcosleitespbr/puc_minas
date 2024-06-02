@@ -1,0 +1,6 @@
+dMinutos = EVALUATEANDLOG(
+    {
+        (0, "00-30"),
+        (1, "30-59")
+    }
+)

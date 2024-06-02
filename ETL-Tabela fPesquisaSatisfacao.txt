@@ -1,0 +1,14 @@
+let
+    Fonte = conteudo_pasta,
+    #"Filtra arquivo e registros" = Table.SelectRows(Fonte, each Text.Contains([Folder Path], "central") and Text.Contains([Folder Path], "pesquisaSatisfacao") and Text.Contains([Name], ".txt")),
+    #"Extrai conteudo" = Table.AddColumn(#"Filtra arquivo e registros", "Conteudo", each Csv.Document([Content])),
+    #"Conteudo importado" = Table.ExpandTableColumn(#"Extrai conteudo", "Conteudo", {"Column1"}, {"Data"}),
+    #"Cria campos da coluna" = Table.SplitColumn(#"Conteudo importado", "Data", Splitter.SplitTextByDelimiter(";", QuoteStyle.Csv), {"inicio", "termino", "telefone", "vq", "agente_id", "cliente_id", "nome_produto", "NPS", "CSAT", "CES", "protocolo_id", "guid", "duracao_ligacao", "duracao_pesquisa"}),
+    #"Outras Colunas Removidas" = Table.SelectColumns(#"Cria campos da coluna",{"inicio", "guid", "protocolo_id", "NPS", "CSAT", "CES", "duracao_ligacao", "duracao_pesquisa"}),
+    #"Linhas Filtradas" = Table.SelectRows(#"Outras Colunas Removidas", each ([guid] <> "GUID da Ligação") and ([guid] <> "") and ([guid] <> null)),
+    #"Duplicatas Removidas" = Table.Distinct(#"Linhas Filtradas", {"guid"}),
+    #"Cria coluna incremental" = Table.RenameColumns(#"Duplicatas Removidas",{{"inicio", "DataKey"}}),
+    #"Corrige tipos" = Table.TransformColumnTypes(#"Cria coluna incremental",{{"DataKey", type datetime}}),
+    #"Filtra periodo incremental" = Table.SelectRows(#"Corrige tipos", each [DataKey] >= RangeStart and [DataKey] <= RangeEnd)
+in
+    #"Filtra periodo incremental"
